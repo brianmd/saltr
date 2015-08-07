@@ -10,13 +10,18 @@ help topics: #{self.class.topics}
 
 r <cmd.run string>
 m <new minion string>
+   m * and G@os:Ubu*    will make a compound minion query
+   G=grains, P=grains regexp, L=list of minions
 o <new out string>
 
-sys.list_functions test
+salt-cloud
+salt-key
 
-list-packages
-list=packagename
-minions=Gos=ub*
+sys.list_modules
+sys.list_functions sys
+sys.doc sys.doc
+
+grains.item ip4_interfaces
 """
 end
 
@@ -34,6 +39,26 @@ ufw deny apache
 ufw app list   # finds from /etc/ufw/applications.d/
 
 log file for intrusion attempts: /var/log/kern.log
+"""
+end
+
+def o
+"""
+compact     Display compact output data structure
+highstate   Outputter for displaying results of state runs
+json_out    Display return data in JSON format
+key         Display salt-key output
+nested      Recursively display nested data
+newline_values_only    Display values only, separated by newlines
+no_out      Display no output
+no_return   Display output for minions that did not return
+overstatestage  Display clean output of an overstate stage
+pprint_out  Python pretty-print (pprint)
+progress    Display return data as a progress bar
+raw         Display raw output data structure
+txt         Simple text outputter
+virt_query  virt.query outputter
+yaml_out    Display return data in YAML format
 """
 end
 

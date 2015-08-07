@@ -10,13 +10,14 @@ require_relative 'help'
 
 module Saltr
   class Repl
-    attr_accessor :minions, :last_result, :out, :static
+    attr_accessor :minions, :last_result, :out, :static, :main_minion
 
     def initialize
       @minions = '*'
       @last_result = nil
       @out = :json
       @static = true
+      @main_minion = 'gru'
       initialize_readline
     end
     
@@ -49,7 +50,7 @@ module Saltr
       result = if parsed_cmd.class==Array and parsed_cmd.first==:result
                  parsed_cmd[1]
                else
-                 parsed_cmd = "#{parsed_cmd} --out=#{@out}"
+                 parsed_cmd = "#{parsed_cmd} --out=#{@out}" unless parsed_cmd.match(/--out/)
                  # parsed_cmd += " --static" if static
                  `#{parsed_cmd}`
                end
@@ -68,6 +69,8 @@ module Saltr
         [:result, set_minion(tokens[1])]
       when 'o'
         [:result, set_out(tokens[1])]
+      when 'l'
+        parse_list(tokens[1])
       when /^salt-key/,/^salt-cloud/
       	cmd
       when 'quit'
@@ -82,18 +85,55 @@ module Saltr
       #YAML.load(result)
     end
     
-    def parse_salt(cmd)
-      # "salt '#{minions}' cmd.run_all --out=json --static --no-color '#{cmd}'"
-      "salt '#{minions}' #{cmd}"
+    def parse_salt(cmd, minions=minion_str, out_type=out)
+      "salt #{minions} --out=#{out_type} #{cmd}"
     end
     
     def parse_cmd_run(cmd)
-      "salt '#{minions}' cmd.run_all --static '#{cmd}'"
+      "salt #{minion_str} cmd.run_all --static '#{cmd}'"
+    end
+
+    def parse_list(cmd)
+      puts cmd.inspect
+      type = 'sys.list_modules'
+      rest = ''
+      out_type = 'raw'
+      unless cmd.nil?
+        args = cmd.split(/\s+/, 2)
+        case args.first
+        when 'functions'
+          type = 'sys.list_functions'
+          rest = args[1]
+        when 'doc'
+          type = 'sys.list_functions'
+          rest = args[1]
+          out_type = 'txt'
+        else
+          if args[0].match(/\./)
+            type = 'sys.doc'
+            out_type = 'txt'
+          else
+            type = 'sys.list_functions'
+          end
+          rest = args[0]
+        end
+      end
+      cmd = type
+      cmd = "#{cmd} #{rest}"
+      parse_salt(cmd, main_minion, out_type)
     end
     
     def set_minion(cmd)
       @minions = cmd
       cmd
+    end
+
+    def minion_str
+      if minions.match(/ and /)
+        "-C '#{minions}'"
+      else
+        "'#{minions}'"
+      end
     end
     
     def set_out(cmd)
@@ -117,6 +157,7 @@ module Saltr
       if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
         Readline::HISTORY.pop
       end
+      # TODO: limit the history size
       line
     end
 
@@ -129,14 +170,15 @@ module Saltr
     def readline_proc
       cmd_list = [
         'cmd.run', 'cmd.run_all',
-        'sys.list_modules', 'sys.list_functions', 'sys.doc',
+        #'sys.list_modules', 'sys.list_functions', 'sys.doc',
+        'l', 'l modules', 'l functions', 'l doc',
+        'rbenv', 'rbenv.install'
       ]
       proc { |s| cmd_list.grep(/^#{Regexp.escape(s)}/) }
     end
 
     def load_history
       history_file.open('r').readlines.each do |line|
-        puts line
         Readline::HISTORY.push line.chomp
       end
     rescue
@@ -145,7 +187,6 @@ module Saltr
     def store_history
       history_file.open('w') do |out|
         Readline::HISTORY.each do |line|
-        puts line
           out.puts line
         end
       end
