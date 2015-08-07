@@ -190,11 +190,11 @@ module Saltr
           out.puts line
         end
       end
-    rescue
+#    rescue
     end
 
     def history_file
-      Pathname(__FILE__).dirname + '.history'
+      Pathname.new("#{ENV['HOME']}/.saltr_history")
     end
   end
 end
