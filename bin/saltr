@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+require 'pathname'
+$LOAD_PATH.unshift Pathname.new(__FILE__).dirname + '..'
+
+require 'lib/saltr'
+
+Saltr::Repl.new.repl
