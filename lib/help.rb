@@ -8,18 +8,18 @@ def top
 """
 help topics: #{self.class.topics}
 
+l                 # sys.list-modules
+l <modulename>    # sys.list-functions modulename
+l <functionname>  # sys.doc functionname
+
 r <cmd.run string>
-m <new minion string>
+m <new-minion-target>
    m * and G@os:Ubu*    will make a compound minion query
    G=grains, P=grains regexp, L=list of minions
 o <new out string>
 
 salt-cloud
 salt-key
-
-sys.list_modules
-sys.list_functions sys
-sys.doc sys.doc
 
 grains.item ip4_interfaces
 """
