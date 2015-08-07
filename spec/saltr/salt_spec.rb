@@ -5,7 +5,7 @@ puts "\n\n\n\n\n\n\n"
 describe Saltr::Repl do
   before(:all) {
     @saltr = Saltr::Repl.new
-    @result = @saltr.run_yaml('uname -a')
+    @result = @saltr.run_yaml('r uname -a')
   }
   
   it 'should show all minions' do
@@ -26,10 +26,10 @@ describe Saltr::Repl do
   describe 'can set minion' do
     it 'to first minion' do
       first_minion = @result.keys.first
-      one = @saltr.run("minions=#{first_minion}")
+      one = @saltr.run("m #{first_minion}")
       expect(one).to eq(first_minion)
       expect(@saltr.minions).to eq(first_minion)
-      result = @saltr.run_yaml('uname -a')
+      result = @saltr.run_yaml('r uname -a')
       expect(result.size).to eq(1)
     end
   end
