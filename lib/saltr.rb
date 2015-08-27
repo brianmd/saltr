@@ -24,7 +24,7 @@ module Saltr
     def repl
       stty_save = `stty -g`.chomp
 
-      while (1) do
+      while (true) do
         print "\n#{'-'*50}\n"
         prompt = "salt '#{@minions}' --out=#{out}: "
         # cmd = Readline.readline(prompt, true)
@@ -140,12 +140,15 @@ module Saltr
       @out = cmd
       cmd
     end
-    
+
     def help(cmd)
+      puts cmd.inspect
       cmd = 'top' if cmd=='' or cmd.nil?
+      puts helpr.inspect
       msg = "Help topic '#{cmd}' doesn't exist."
       begin
-        msg = Help.new.send(cmd.to_sym)
+        msg = helpr[cmd]
+        #msg = Help.new.send(cmd.to_sym)
       rescue
       end
       "HELP #{cmd}\n\n#{msg}"

@@ -1,13 +1,26 @@
+require 'helpr'
+
 module Saltr
-  class Help
+  class Repl
+    def helpr
+      if @help.nil?
+        @help = Helpr::Help.new
+        @help.top = top
+        @help.add('top', top)
+        @help.add('ufw', ufw)
+        @help.add('o', o)
+      end
+      @help
+    end
+
+
     def self.topics
       self.instance_methods(false).collect{ |meth| meth.to_s }.join(', ')
     end
     
 def top
+#help topics: #{self.class.topics}
 """
-help topics: #{self.class.topics}
-
 l                 # sys.list-modules
 l <modulename>    # sys.list-functions modulename
 l <functionname>  # sys.doc functionname
